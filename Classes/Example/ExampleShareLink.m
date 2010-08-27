@@ -56,7 +56,7 @@
 	
 	SHKItem *item = [SHKItem URL:webView.request.URL title:[webView pageTitle]];
 	SHKActionSheet *actionSheet = [SHKActionSheet actionSheetForItem:item];
-	[actionSheet showFromToolbar:self.navigationController.toolbar];
+	[actionSheet showFromToolbar:self.navigationController.toolbar]; 
 }
 
 - (void)loadView 
@@ -68,7 +68,7 @@
     
 	self.view = webView;
 	[webView release];
-	
+
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 

@@ -32,7 +32,7 @@
 #import "SHKOfflineSharer.h"
 #import "SFHFKeychainUtils.h"
 #import "Reachability.h"
-#import </usr/include/objc/objc-class.h>
+#import <objc/objc-class.h>
 #import <MessageUI/MessageUI.h>
 
 
@@ -145,7 +145,13 @@ BOOL SHKinit;
 	
 	// Show the nav controller
 	else
-	{
+	{		
+		if ([vc respondsToSelector:@selector(modalPresentationStyle)])
+			vc.modalPresentationStyle = [SHK modalPresentationStyle];
+		
+		if ([vc respondsToSelector:@selector(modalTransitionStyle)])
+			vc.modalTransitionStyle = [SHK modalTransitionStyle];
+		
 		[topViewController presentModalViewController:vc animated:YES];
 		[(UINavigationController *)vc navigationBar].barStyle = 
 		[(UINavigationController *)vc toolbar].barStyle = [SHK barStyle];
@@ -412,19 +418,23 @@ static NSDictionary *sharersDictionary = nil;
 #pragma mark -
 #pragma mark Offline Support
 
-+ (NSString *)offlineQueueListPath
++ (NSString *)offlineQueuePath
 {
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSArray *paths = NSSearchPathForDirectoriesInDomains( NSCachesDirectory, NSUserDomainMask, YES);
 	NSString *cache = [paths objectAtIndex:0];
 	NSString *SHKPath = [cache stringByAppendingPathComponent:@"SHK"];
-	NSString *listPath = [SHKPath stringByAppendingPathComponent:@"SHKOfflineQueue.plist"];
 	
 	// Check if the path exists, otherwise create it
 	if (![fileManager fileExistsAtPath:SHKPath]) 
 		[fileManager createDirectoryAtPath:SHKPath withIntermediateDirectories:YES attributes:nil error:nil];
 	
-	return listPath;	
+	return SHKPath;
+}
+
++ (NSString *)offlineQueueListPath
+{
+	return [[self offlineQueuePath] stringByAppendingPathComponent:@"SHKOfflineQueue.plist"];
 }
 
 + (NSMutableArray *)getOfflineQueueList
@@ -445,11 +455,11 @@ static NSDictionary *sharersDictionary = nil;
 	
 	// store image in cache
 	if (item.shareType == SHKShareTypeImage && item.image)
-		[UIImageJPEGRepresentation(item.image, 100) writeToFile:[[self offlineQueueListPath] stringByAppendingPathComponent:uid] atomically:YES];
+		[UIImageJPEGRepresentation(item.image, 1) writeToFile:[[self offlineQueuePath] stringByAppendingPathComponent:uid] atomically:YES];
 	
 	// store file in cache
 	else if (item.shareType == SHKShareTypeFile)
-		[item.data writeToFile:[[self offlineQueueListPath] stringByAppendingPathComponent:uid] atomically:YES];
+		[item.data writeToFile:[[self offlineQueuePath] stringByAppendingPathComponent:uid] atomically:YES];
 	
 	// Open queue list
 	NSMutableArray *queueList = [self getOfflineQueueList];
@@ -490,19 +500,21 @@ static NSDictionary *sharersDictionary = nil;
 			helper.offlineQueue = [[NSOperationQueue alloc] init];		
 	
 		SHKItem *item;
-		NSString *sharerId;
+		NSString *sharerId, *uid;
 		
 		for (NSDictionary *entry in queueList)
 		{
 			item = [SHKItem itemFromDictionary:[entry objectForKey:@"item"]];
 			sharerId = [entry objectForKey:@"sharer"];
+			uid = [entry objectForKey:@"uid"];
 			
 			if (item != nil && sharerId != nil)
-				[helper.offlineQueue addOperation:[[[SHKOfflineSharer alloc] initWithItem:item forSharer:sharerId] autorelease]];
+				[helper.offlineQueue addOperation:[[[SHKOfflineSharer alloc] initWithItem:item forSharer:sharerId uid:uid] autorelease]];
 		}
 		
 		// Remove offline queue - TODO: only do this if everything was successful?
 		[[NSFileManager defaultManager] removeItemAtPath:[self offlineQueueListPath] error:nil];
+
 	}
 }
 
@@ -523,6 +535,7 @@ static NSDictionary *sharersDictionary = nil;
 
 + (BOOL)connected 
 {
+	//return NO; // force for offline testing
 	Reachability *hostReach = [Reachability reachabilityForInternetConnection];	
 	NetworkStatus netStatus = [hostReach currentReachabilityStatus];	
 	return !(netStatus == NotReachable);
@@ -564,28 +577,20 @@ NSString * SHKEncodeURL(NSURL * value)
 	return result;
 }
 
-void SHKSwizzle(Class c, SEL orig, SEL new)
+void SHKSwizzle(Class c, SEL orig, SEL newClassName)
 {
     Method origMethod = class_getInstanceMethod(c, orig);
-    Method newMethod = class_getInstanceMethod(c, new);
+    Method newMethod = class_getInstanceMethod(c, newClassName);
     if(class_addMethod(c, orig, method_getImplementation(newMethod), method_getTypeEncoding(newMethod)))
-		class_replaceMethod(c, new, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
+		class_replaceMethod(c, newClassName, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
 	else
 		method_exchangeImplementations(origMethod, newMethod);
 }
 
 NSString* SHKLocalizedString(NSString* key, ...) 
 {
-	static NSBundle* bundle = nil;
-	if (!bundle) 
-	{
-		NSString* path = [[[NSBundle mainBundle] resourcePath]
-						  stringByAppendingPathComponent:@"ShareKit.bundle"];
-		bundle = [[NSBundle bundleWithPath:path] retain];
-	}
-	
 	// Localize the format
-	NSString *localizedStringFormat = [bundle localizedStringForKey:key value:key table:nil];
+	NSString *localizedStringFormat = NSLocalizedString(key, key);
 	
 	va_list args;
     va_start(args, key);
