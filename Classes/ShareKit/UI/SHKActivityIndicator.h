@@ -34,12 +34,14 @@
 	UILabel *subMessageLabel;
 	
 	UIActivityIndicatorView *spinner;
+	UIProgressView *progressBar;
 }
 
 @property (nonatomic, retain) UILabel *centerMessageLabel;
 @property (nonatomic, retain) UILabel *subMessageLabel;
 
 @property (nonatomic, retain) UIActivityIndicatorView *spinner;
+@property (nonatomic, retain) UIProgressView *progressBar;
 
 
 + (SHKActivityIndicator *)currentIndicator;
@@ -53,6 +55,7 @@
 - (void)setCenterMessage:(NSString *)message;
 - (void)setSubMessage:(NSString *)message;
 - (void)showSpinner;
+- (void)setProgress:(float)value;
 - (void)setProperRotation;
 - (void)setProperRotation:(BOOL)animated;
 

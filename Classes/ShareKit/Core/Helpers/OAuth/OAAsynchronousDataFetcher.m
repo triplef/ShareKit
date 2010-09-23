@@ -30,10 +30,15 @@
 
 + (id)asynchronousFetcherWithRequest:(OAMutableURLRequest *)aRequest delegate:(id)aDelegate didFinishSelector:(SEL)finishSelector didFailSelector:(SEL)failSelector
 {
-	return [[[OAAsynchronousDataFetcher alloc] initWithRequest:aRequest delegate:aDelegate didFinishSelector:finishSelector didFailSelector:failSelector] autorelease];
+	return [[[OAAsynchronousDataFetcher alloc] initWithRequest:aRequest delegate:aDelegate didFinishSelector:finishSelector didFailSelector:failSelector didProgressSelector:NULL] autorelease];
 }
 
-- (id)initWithRequest:(OAMutableURLRequest *)aRequest delegate:(id)aDelegate didFinishSelector:(SEL)finishSelector didFailSelector:(SEL)failSelector
++ (id)asynchronousFetcherWithRequest:(OAMutableURLRequest *)aRequest delegate:(id)aDelegate didFinishSelector:(SEL)finishSelector didFailSelector:(SEL)failSelector didProgressSelector:(SEL)progressSelector
+{
+	return [[[OAAsynchronousDataFetcher alloc] initWithRequest:aRequest delegate:aDelegate didFinishSelector:finishSelector didFailSelector:failSelector didProgressSelector:progressSelector] autorelease];
+}
+
+- (id)initWithRequest:(OAMutableURLRequest *)aRequest delegate:(id)aDelegate didFinishSelector:(SEL)finishSelector didFailSelector:(SEL)failSelector didProgressSelector:(SEL)progressSelector
 {
 	if (self = [super init])
 	{
@@ -41,6 +46,7 @@
 		delegate = aDelegate;
 		didFinishSelector = finishSelector;
 		didFailSelector = failSelector;	
+		didProgressSelector = progressSelector;
 	}
 	return self;
 }
@@ -105,6 +111,16 @@
 - (void)connection:(NSURLConnection *)aConnection didReceiveData:(NSData *)data
 {
 	[responseData appendData:data];
+}
+
+- (void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
+{
+	if (didProgressSelector)
+	{
+		OAServiceTicket *ticket= [[[OAServiceTicket alloc] initWithRequest:request response:response didSucceed:NO] autorelease];
+		float progress = (float)totalBytesWritten/totalBytesExpectedToWrite;
+		[delegate performSelector:didProgressSelector withObject:ticket withObject:[NSNumber numberWithFloat:progress]];
+	}
 }
 
 - (void)connection:(NSURLConnection *)aConnection didFailWithError:(NSError *)error

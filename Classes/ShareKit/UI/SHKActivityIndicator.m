@@ -33,7 +33,7 @@
 @implementation SHKActivityIndicator
 
 @synthesize centerMessageLabel, subMessageLabel;
-@synthesize spinner;
+@synthesize spinner, progressBar;
 
 static SHKActivityIndicator *currentIndicator = nil;
 
@@ -164,6 +164,8 @@ static SHKActivityIndicator *currentIndicator = nil;
 	
 	[spinner removeFromSuperview];
 	self.spinner = nil;
+	[progressBar removeFromSuperview];
+	self.progressBar = nil;
 	
 	if ([self superview] == nil)
 		[self show];
@@ -229,6 +231,9 @@ static SHKActivityIndicator *currentIndicator = nil;
 {	
 	if (spinner == nil)
 	{
+		[progressBar removeFromSuperview];
+		self.progressBar = nil;
+		
 		self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 
 		spinner.frame = CGRectMake(round(self.bounds.size.width/2 - spinner.frame.size.width/2),
@@ -240,6 +245,25 @@ static SHKActivityIndicator *currentIndicator = nil;
 	
 	[self addSubview:spinner];
 	[spinner startAnimating];
+}
+
+- (void)setProgress:(float)value
+{
+	if (progressBar == nil)
+	{
+		[spinner removeFromSuperview];
+		self.spinner = nil;
+		
+		self.progressBar = [[[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar] autorelease];
+		
+		CGFloat progressBarWidth = self.bounds.size.width - 40;
+		progressBar.frame = CGRectMake(round(self.bounds.size.width/2 - progressBarWidth/2),
+								   round(self.bounds.size.height/2 - progressBar.frame.size.height/2),
+								   progressBarWidth, progressBar.frame.size.height);
+		[self addSubview:progressBar];
+	}
+	
+	progressBar.progress = value;
 }
 
 #pragma mark -
