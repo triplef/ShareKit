@@ -53,6 +53,17 @@
 // Read It Later - http://readitlaterlist.com/api/?shk
 #define SHKReadItLaterKey			@""
 
+// SoundCloud - http://soundcloud.com/you/apps
+#define SHKSoundCloudUseSandbox		1	// Set to 1 to use http://sandbox-soundcloud.com (register app separately there!)
+#if SHKSoundCloudUseSandbox
+	#define SHKSoundCloudConsumerKey	@""
+	#define SHKSoundCloudSecretKey		@""
+#else
+	#define SHKSoundCloudConsumerKey	@""
+	#define SHKSoundCloudSecretKey		@""
+#endif
+#define SHKSoundCloudSignature		SHKLocalizedString(@"Made with %@", SHKMyAppName)	// Set to nil or 0 to disable signature
+
 // Twitter - http://dev.twitter.com/apps/new
 /*
  Important Twitter settings to get right:

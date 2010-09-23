@@ -1,8 +1,8 @@
 //
-//  SHKTwitterAuthView.h
+//  SHKSoundCloud.h
 //  ShareKit
 //
-//  Created by Nathan Weiner on 6/21/10.
+//  Created by Frederik Seiffert on 09/20/10.
 
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,38 +25,14 @@
 //
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import "SHK.h"
+#import "SHKOAuthSharer.h"
 
-@class SHKOAuthView;
-@class SHKOAuthSharer;
-
-@protocol SHKOAuthViewDelegate
-
-- (void)tokenAuthorizeView:(SHKOAuthView *)authView didFinishWithSuccess:(BOOL)success queryParams:(NSMutableDictionary *)queryParams error:(NSError *)error;
-- (void)tokenAuthorizeCancelledView:(SHKOAuthView *)authView;
-- (NSURL *)authorizeCallbackURL;
-
-@optional
-
-- (void)tokenAuthorizeView:(SHKOAuthView *)authView didFinishLoadingWebView:(UIWebView *)webView;
-
-@end
-
-
-@interface SHKOAuthView : UIViewController <UIWebViewDelegate>
-{
-	UIWebView *webView;
-	id delegate;
-	UIActivityIndicatorView *spinner;
+@interface SHKSoundCloud : SHKOAuthSharer {
+	NSURL *permalink;
 }
 
-@property (nonatomic, retain) UIWebView *webView;
-@property (retain) id<SHKOAuthViewDelegate> delegate;
-@property (nonatomic, retain) UIActivityIndicatorView *spinner;
-
-- (id)initWithURL:(NSURL *)authorizeURL delegate:(id)d;
-
-- (void)startSpinner;
-- (void)stopSpinner;
+@property (nonatomic, readonly) NSURL *permalink;
 
 @end
