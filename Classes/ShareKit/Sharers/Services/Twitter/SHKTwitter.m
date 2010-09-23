@@ -352,8 +352,9 @@
 	
 	else
 	{		
-		if (SHKDebugShowLogs)
+#if SHKDebugShowLogs
 			SHKLog(@"Twitter Send Status Error: %@", [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease]);
+#endif
 		
 		// CREDIT: Oliver Drobnik
 		
@@ -407,11 +408,11 @@
 																	   token:accessToken
 																	   realm:@"http://api.twitter.com/"
 														   signatureProvider:signatureProvider];
-	[oRequest setHTTPMethod:@"GET"];
-	
 	if([item customValueForKey:@"profile_update"]){
+		[oRequest setHTTPMethod:@"POST"];
 		[oRequest prepare];
 	} else {
+		[oRequest setHTTPMethod:@"GET"];
 		[oRequest prepare];
 
 		NSDictionary * headerDict = [oRequest allHTTPHeaderFields];

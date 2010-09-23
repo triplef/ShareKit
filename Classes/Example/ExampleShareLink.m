@@ -1,4 +1,4 @@
-    //
+//
 //  ExampleShareLink.m
 //  ShareKit
 //
@@ -30,11 +30,8 @@
 
 @implementation ExampleShareLink
 
-@synthesize webView;
-
 - (void)dealloc
 {
-	[webView release];
 	[super dealloc];
 }
 
@@ -43,11 +40,11 @@
 	if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])
 	{
 		self.toolbarItems = [NSArray arrayWithObjects:
-								[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil] autorelease],
+                             [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil] autorelease],
 							 [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(share)] autorelease],
-								[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil] autorelease],
-								nil
-							];
+                             [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil] autorelease],
+                             nil
+                             ];
 	}
 	
 	return self;
@@ -55,6 +52,8 @@
 
 - (void)share
 {
+	UIWebView *webView = (UIWebView *) self.view;
+	
 	SHKItem *item = [SHKItem URL:webView.request.URL title:[webView pageTitle]];
 	SHKActionSheet *actionSheet = [SHKActionSheet actionSheetForItem:item];
 	[actionSheet showFromToolbar:self.navigationController.toolbar]; 
@@ -62,13 +61,14 @@
 
 - (void)loadView 
 { 
-	self.webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+	UIWebView * webView = [[UIWebView alloc] initWithFrame:CGRectZero];
 	webView.delegate = self;
 	webView.scalesPageToFit = YES;
 	[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://apple.com"]]];
-		
+    
 	self.view = webView;
 	[webView release];
+
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 

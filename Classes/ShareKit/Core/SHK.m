@@ -197,7 +197,7 @@ BOOL SHKinit;
 	self.isDismissingView = NO;
 	
 	if (currentView != nil)
-		currentView = nil;
+		self.currentView = nil;
 	
 	if (pendingView)
 	{
@@ -288,7 +288,11 @@ BOOL SHKinit;
 			case SHKShareTypeFile:
 				favoriteSharers = [NSArray arrayWithObjects:@"SHKMail", nil];
 				break;
-		}
+
+      case SHKShareTypeUndefined:
+        SHKLog(@"Received call to favoriteSharersForType for type SHKShareTypeUndefined!");
+        break;
+    }
 		
 		// Save defaults to prefs
 		[self setFavorites:favoriteSharers forType:type];

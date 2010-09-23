@@ -54,14 +54,14 @@
 	{
 		self.title = SHKLocalizedString(@"Share");
 		
-		self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+		self.navigationItem.leftBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
 																							  target:self
-																							  action:@selector(cancel)];
+																							  action:@selector(cancel)] autorelease];
 		
-		self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:SHKLocalizedString(@"Edit")
+		self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:SHKLocalizedString(@"Edit")
 																				  style:UIBarButtonItemStyleBordered
 																				 target:self
-																				 action:@selector(edit)];
+																				 action:@selector(edit)] autorelease];
 		
 	}
 	return self;
@@ -213,7 +213,8 @@
     
 	NSDictionary *rowData = [self rowDataAtIndexPath:indexPath];
 	cell.textLabel.text = [rowData objectForKey:@"name"];
-	
+	cell.imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.%@",[rowData objectForKey:@"className"],@"png"]];
+    
 	if (cell.editingAccessoryView == nil)
 	{
 		UISwitch *toggle = [[UISwitch alloc] initWithFrame:CGRectZero];
